@@ -1,55 +1,64 @@
 ---
-<<<<<<< HEAD
 title: "PA1_template"
-output: pdf_document
+author: "jpeyto"
+date: "8 July 2017"
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+require("data.table")
+require("lattice")
+require("ggplot2")
+require("reshape2")
+require("dplyr")
+require("zoo")
 ```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
-=======
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
-
 
 ## Loading and preprocessing the data
 
-
+```{r load_data}
+  if(!file.exists("activity.csv")) {
+    if(!file.exists("repdata%2Fdata%2Factivity.zip")) {
+      fileURL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+      download.file(fileURL, "repdata%2Fdata%2Factivity.zip")
+    } 
+    unzip("repdata%2Fdata%2Factivity.zip")
+  } 
+  data<-read.csv("activity.csv")
+  data<-mutate(data, date=as.POSIXct(data.frame$date,format="%Y-%m-%d", tz="GMT"))
+```
 
 ## What is mean total number of steps taken per day?
-
-
+```{r steps_per_day}
+  total_steps<-tapply(data$steps, data$date, sum)
+  hist(total_steps)
+  mean(total_steps, na.rm=TRUE)
+  median(total_steps, na.rm=TRUE)
+```
 
 ## What is the average daily activity pattern?
-
+```{r steps_per_interval}
+  interval_steps<-tapply(data$steps, data$interval, mean, na.rm=TRUE)
+  plot(unique(data$interval), interval_steps, type="l", xaxt="n")
+  axis(side=1, at = unique(data$interval)[seq(13,288,12)])
+  interval_steps[which.max(interval_steps)]
+```
 
 
 ## Imputing missing values
-
-
+```{r na}
+  sum(is.na(data$steps))
+  #na_data<-dcast(data, interval ~ date)
+  #interpolated<-na.approx(data, rule=2)
+  d2<-mutate(data, total=seq(0,17568*5-1,5))
+  d3<-na.approx(d2[,c(4,1)], rule=2)
+  interp<-mutate(data, steps=d3[,2])
+  #
+  interval_steps<-tapply(interp$steps, interp$interval, mean, na.rm=TRUE)
+  plot(unique(interp$interval), interval_steps, type="l", xaxt="n")
+  axis(side=1, at = unique(interp$interval)[seq(13,288,12)])
+  interval_steps[which.max(interval_steps)]
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
->>>>>>> 80edf39c3bb508fee88e3394542f967dd3fd3270
