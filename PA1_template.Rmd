@@ -8,7 +8,7 @@ keep_md: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.align = "center")
+knitr::opts_chunk$set(echo = TRUE, fig.align = "center", options(scipen=999))
 require("data.table")
 require("ggplot2")
 require("reshape2")
@@ -65,8 +65,8 @@ The number of NA values is `r num_nas`.
   interp_mean<-mean(total_steps_interpolated)
   interp_median<-median(total_steps_interpolated)
 ```
-The mean has decreased from `r total_mean` to `r interp_mean`.
-The median has decreased from `r total_median` to `r interp_median`.
+After interpolating the missing data, the mean has decreased from `r total_mean` to `r interp_mean`, while the median has decreased from `r total_median` to `r interp_median`.
+
 
 ## Are there differences in activity patterns between weekdays and weekends?
 ```{r days}
